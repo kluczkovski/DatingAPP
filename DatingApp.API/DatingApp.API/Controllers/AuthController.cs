@@ -1,98 +1,101 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using DatingApp.API.Data;
-using DatingApp.API.DTOs;
-using DatingApp.API.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+﻿        using System;
+        using System.Collections.Generic;
+        using System.IdentityModel.Tokens.Jwt;
+        using System.Linq;
+        using System.Security.Claims;
+        using System.Text;
+        using System.Threading.Tasks;
+        using DatingApp.API.Data;
+        using DatingApp.API.DTOs;
+        using DatingApp.API.Models;
+        using Microsoft.AspNetCore.Mvc;
+        using Microsoft.Extensions.Configuration;
+        using Microsoft.IdentityModel.Tokens;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+        // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace DatingApp.API.Controllers
-{
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AuthController : ControllerBase
-    {
-        private readonly IAuthRepository _repo;
-        private readonly IConfiguration _config;
-
-        public AuthController(IAuthRepository authRepository, IConfiguration configuration)
+        namespace DatingApp.API.Controllers
         {
-            _repo = authRepository;
-            _config = configuration;
-        }
-
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto)
-        {
-            //// validade request
-            /// I dont need the ModelState, because the ApiController has the validion function embutido
-            //if (!ModelState.IsValid)
-            //{
-            //    return BadRequest(ModelState);
-            //}
-
-
-            userForRegisterDto.Username = userForRegisterDto.Username.ToLower();
-            if (await _repo.UserExist(userForRegisterDto.Username))
+            [Route("api/[controller]")]
+            [ApiController]
+            public class AuthController : ControllerBase
             {
-                return BadRequest("Username already exist");
-            }
+                private readonly IAuthRepository _repo;
+                private readonly IConfiguration _config;
 
-            var userToCreate = new User()
-            {
-                UserName = userForRegisterDto.Username,
-            };
+                public AuthController(IAuthRepository authRepository, IConfiguration configuration)
+                {
+                    _repo = authRepository;
+                    _config = configuration;
+                }
 
-            var createdUser = await _repo.Register(userToCreate, userForRegisterDto.Password);
+                [HttpPost("register")]
+                public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto)
+                {
+                    //// validade request
+                    /// I dont need the ModelState, because the ApiController has the validion function embutido
+                    //if (!ModelState.IsValid)
+                    //{
+                    //    return BadRequest(ModelState);
+                    //}
 
-            return StatusCode(201);
-        }
+
+                    userForRegisterDto.Username = userForRegisterDto.Username.ToLower();
+                    if (await _repo.UserExist(userForRegisterDto.Username))
+                    {
+                        return BadRequest("Username already exist");
+                    }
+
+                    var userToCreate = new User()
+                    {
+                        UserName = userForRegisterDto.Username,
+                    };
+
+                    var createdUser = await _repo.Register(userToCreate, userForRegisterDto.Password);
+
+                    return StatusCode(201);
+                }
 
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login (UserForLoginDto userForLoginDto)
-        {
-            var userFromRep = await _repo.Login(userForLoginDto.UserName, userForLoginDto.Password);
+                [HttpPost("login")]
+                public async Task<IActionResult> Login (UserForLoginDto userForLoginDto)
+                {
 
-            if (userFromRep == null)
-            {
-                return Unauthorized();
-            }
+                    var userFromRep = await _repo.Login(userForLoginDto.UserName, userForLoginDto.Password);
 
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, userFromRep.UserId.ToString()),
-                new Claim(ClaimTypes.Name, userFromRep.UserName),
-            };
+                    if (userFromRep == null)
+                    {
+                        return Unauthorized();
+                    }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetSection("AppSettings:Token").Value));
+                    var claims = new[]
+                    {
+                    new Claim(ClaimTypes.NameIdentifier, userFromRep.UserId.ToString()),
+                    new Claim(ClaimTypes.Name, userFromRep.UserName),
+                    };
 
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetSection("AppSettings:Token").Value));
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddHours(1),
-                SigningCredentials = creds,
+                    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
-            };
+                    var tokenDescriptor = new SecurityTokenDescriptor
+                    {
+                        Subject = new ClaimsIdentity(claims),
+                        Expires = DateTime.Now.AddHours(1),
+                        SigningCredentials = creds,
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
+                    };
 
-            return Ok(new {
-                token = tokenHandler.WriteToken(token)
-            });
-        }
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var token = tokenHandler.CreateToken(tokenDescriptor);
+
+                    return Ok(new
+                    {
+                        token = tokenHandler.WriteToken(token)
+                    });
+            
+                }
 
        
-    }
-}
+            }
+        }
