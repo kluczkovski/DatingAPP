@@ -1,0 +1,5 @@
+{
+    "markdown.preview.openMarkdownLinks": "inEditor",
+    "workbench.editor.enablePreview": false,
+    "workbench.editor.enablePreviewFromQuickOpen": false
+}
