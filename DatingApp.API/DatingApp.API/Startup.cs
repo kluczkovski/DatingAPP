@@ -21,6 +21,7 @@ using Microsoft.IdentityModel.Tokens;
 
 using DatingApp.API.Helpers;
 using AutoMapper;
+using Newtonsoft.Json.Serialization;
 
 namespace DatingApp.API
 {
@@ -43,7 +44,8 @@ namespace DatingApp.API
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions( opt => {
-                    opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;        
+                    opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                    
                 });
 
             services.AddCors();
