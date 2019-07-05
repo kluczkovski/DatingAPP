@@ -18,6 +18,7 @@ namespace DatingApp.API.Controllers
     [ServiceFilter (typeof(LogUserActivity))]
     [Authorize]
     [Route("api/[controller]")]
+    [ApiController]
     public class UsersController : ControllerBase
     {
         private readonly IDatingRepository _repo;
@@ -88,6 +89,7 @@ namespace DatingApp.API.Controllers
         [HttpPost("{id}/like/{recipientId}")]
         public async Task<IActionResult> LikeUser(int id, int recipientId)
         {
+           
             if (id != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
             {
                 return Unauthorized();
