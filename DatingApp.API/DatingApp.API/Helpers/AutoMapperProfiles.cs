@@ -45,11 +45,7 @@ namespace DatingApp.API.Helpers
                 .ForMember(
                     dest => dest.RecipientPhotoUrl,
                     opt => opt.MapFrom(src => src.Recipient.Photos.FirstOrDefault(p => p.IsMain == true).Url));
-                   
-                
-                
-
-                 
+      
         }
     }
 }

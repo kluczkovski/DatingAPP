@@ -7,14 +7,14 @@ namespace DatingApp.API.DTOs
 
         public int RecipientId { get; set; }
 
-        public DateTime DateMessageSent { get; set; }
+        public DateTime DataMessageSent { get; set; }
 
         public string Content { get; set; }
 
 
         public MessageForCreationDto()
         {
-            DateMessageSent = DateTime.Now;
+            DataMessageSent = DateTime.Now;
         }
     }
 }
